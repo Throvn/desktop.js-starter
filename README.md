@@ -1,0 +1,76 @@
+# Desktop.js CLI
+
+This program sets up your development environment for developing Desktop.js apps.
+
+- It takes your JS/TS sources, bundles them and runs them.
+- It can also produce production executables.
+
+If you don't know what's [desktop.js](https://github.com/Throvn/desktop.js), head over to that repo first.
+
+## Usage
+
+First you want to initialize a new project.
+The following command will create the folder structure for you.
+
+```shell
+djs init <name> <path?>
+```
+
+**Parameters**
+
+- name: The name of the project (will show up as the window name)
+- path: Optional. Where you want to create the project. Default is your cwd. If your cwd is full, it will create the project under <cwd>/`<name>`/
+
+The project structure will look as follows:
+
+```
+.internals/
+        types.d.ts
+assets/
+        fonts/
+source/
+        index.tsx
+tsconfig.json
+types.d.ts
+djs.ini
+```
+
+Note the `.internals/` directory is for temporary files.
+All contents inside are generated and **you should not use it and you should not care**!
+
+But in case you do care:
+
+- It includes `types.d.ts` to set up autocomplete in your editor (assuming it's VSCode).
+- The output of the bundler are also saved in there under `out/`.
+
+The `assets/` directory is bundled as is into your package.
+Apart from the fonts directory, which **absolutely needs to be there** and is not allowed to have anything other than `.tff` fonts inside, you can freely choose the directory structure.
+
+The `index.jsx` is the main entry point and cannot be changed.
+
+Inside of the djs.ini you will find the following:
+
+```ini
+[project]
+name = Example Project
+starter-version = 0.1.0
+
+[window]
+width = 600
+height = 300
+```
+
+This file exists for global configurations.
+If you adjust the file, you need to restart `djs` (in case you were in live reload mode).
+
+```shell
+djs watch
+```
+
+Needs to be started in the project root.
+Observes the `source/` directory for changes and rebundles the output.
+The rebundled changes are then loaded and displayed.
+
+```shell
+djs package
+```
