@@ -64,7 +64,7 @@ This file exists for global configurations.
 If you adjust the file, you need to restart `djs` (in case you were in live reload mode).
 
 ```shell
-djs watch
+djs watch <path?>
 ```
 
 Needs to be started in the project root.

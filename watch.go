@@ -89,7 +89,8 @@ func setupWatcher(location string) {
 	<-make(chan struct{})
 }
 
-func Watch() {
+func Watch(location string) {
+	// TODO: Handle if location was given!
 	location, err := os.Getwd()
 	if err != nil {
 		Fatal("Could not get current working directory")

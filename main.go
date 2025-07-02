@@ -1,8 +1,14 @@
 package main
 
 import (
+	_ "embed"
+	"fmt"
+
 	flag "github.com/spf13/pflag"
 )
+
+//go:embed version
+var version string
 
 func main() {
 
@@ -14,7 +20,9 @@ func main() {
 		var location = flag.Arg(2)
 		InitProject(name, location)
 	case "watch":
-		Watch()
+		var location = flag.Arg(1)
+		Watch(location)
+	case "version":
+		fmt.Printf("djs %s\n", version)
 	}
-
 }

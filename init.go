@@ -4,6 +4,7 @@ import (
 	_ "embed"
 	"fmt"
 	"os"
+	"strings"
 )
 
 func teardownProject(location string) {
@@ -88,11 +89,36 @@ func setupGitignore(location string) {
 	file.Close()
 }
 
+func setupIniFile(name string, location string) {
+	var file, err = os.Create(location + "/djs.ini")
+	if err != nil {
+		teardownProject(location)
+		Fatalf("Could not create '/.gitignore' at '%s'\n%v\n", location, err)
+	}
+	file.WriteString(`
+[project]
+name = ` + name + `
+starter-version = ` + version + `
+
+[window]
+width = 600
+height = 300
+	`)
+	file.Close()
+
+}
+
 func InitProject(name string, location string) {
 	if name == "" {
 		Fatalf("no project name given. Try specifying one: \"djs init <project name>\"")
 	}
 
+	// Sanitize project name
+	name = strings.ReplaceAll(name, " ", "-")
+	name = strings.ToLower(name)
+
+	// Determine location of the project root.
+	// Either cwd, or cwd/projectName
 	var projectLocation string = location
 	if projectLocation == "" {
 		var locErr error
@@ -106,6 +132,7 @@ func InitProject(name string, location string) {
 		projectLocation += "/" + name
 	}
 
+	// Check that we don't overwrite existing projects or folders
 	if _, err := os.Stat(projectLocation); !os.IsNotExist(err) {
 		Infof("Nothing done since project '%s' at '%s' already exists", name, projectLocation)
 		os.Exit(0)
@@ -116,6 +143,7 @@ func InitProject(name string, location string) {
 	setupTsConfig(projectLocation)
 	setupTsIndex(projectLocation)
 	setupGitignore(projectLocation)
+	setupIniFile(name, projectLocation)
 
 	Infof("Created '%s' at '%s'\n", name, projectLocation)
 
