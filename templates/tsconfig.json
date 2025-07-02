@@ -4,10 +4,11 @@
     "jsx": "preserve",
     "jsxFactory": "GUI.createElement",
     "module": "esnext",
+    "moduleResolution": "bundler",
     "noImplicitOverride": true,
     "strict": true,
     "useUnknownInCatchVariables": true,
     "lib": ["ESNext"],
-    "types": ["./.internals/types"]
+    "types": ["./.internals/types.d.ts", "./.internals/libgui.d.mts"]
   }
 }

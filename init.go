@@ -3,7 +3,6 @@ package main
 import (
 	_ "embed"
 	"fmt"
-	"log"
 	"os"
 )
 
@@ -12,8 +11,7 @@ func setupFolders(location string) {
 	for i := 0; i < len(paths); i++ {
 		var mkDirErr = os.MkdirAll(location+"/"+paths[i], os.ModePerm)
 		if mkDirErr != nil {
-			log.Fatalf("could not create 'assets' directory at '%s'\n%v", location, mkDirErr)
-			os.Exit(1)
+			Fatalf("Could not create 'assets' directory at '%s'\n%v", location, mkDirErr)
 		}
 	}
 }
@@ -21,15 +19,25 @@ func setupFolders(location string) {
 //go:embed templates/types.d.ts
 var tstypes string
 
+//go:embed templates/libgui.d.mts
+var tsguitypes string
+
 func setupTsTypes(location string) {
-	var newTypes, tsconfigErr = os.Create(location + "/.internals/types.d.ts")
-	if tsconfigErr != nil {
-		log.Fatalf("could not create 'types.d.ts' at '%s/.internals'\n%v\n", location, tsconfigErr)
-		os.Exit(1)
+	var newTypes, tstypeErr = os.Create(location + "/.internals/types.d.ts")
+	if tstypeErr != nil {
+		Fatalf("Could not create 'types.d.ts' at '%s/.internals'\n%v\n", location, tstypeErr)
 	}
 
 	newTypes.WriteString(tstypes)
 	newTypes.Close()
+
+	var newGuiTypes, tsguitypeErr = os.Create(location + "/.internals/libgui.d.mts")
+	if tsguitypeErr != nil {
+		Fatalf("Could not create 'libgui.d.mts' at '%s/.internals'\n%v\n", location, tsguitypeErr)
+	}
+
+	newGuiTypes.WriteString(tsguitypes)
+	newGuiTypes.Close()
 }
 
 //go:embed templates/tsconfig.json
@@ -38,31 +46,50 @@ var tsconfig string
 func setupTsConfig(location string) {
 	var newTsConfig, tsconfigErr = os.Create(location + "/tsconfig.json")
 	if tsconfigErr != nil {
-		log.Fatalf("could not create 'tsconfig.json' at '%s'\n%v\n", location, tsconfigErr)
-		os.Exit(1)
+		Fatalf("Could not create 'tsconfig.json' at '%s'\n%v\n", location, tsconfigErr)
 	}
 	newTsConfig.WriteString(tsconfig)
 	newTsConfig.Close()
 }
 
+//go:embed templates/index.tsx
+var tsindex string
+
+func setupTsIndex(location string) {
+	var newTsConfig, tsconfigErr = os.Create(location + "/source/index.tsx")
+	if tsconfigErr != nil {
+		Fatalf("Could not create '/source/index.tsx' at '%s'\n%v\n", location, tsconfigErr)
+	}
+	newTsConfig.WriteString(tsindex)
+	newTsConfig.Close()
+}
+
 func InitProject(name string, location string) {
-	var projectLocation string
-	if location == "" {
+	if name == "" {
+		Fatalf("no project name given. Try specifying one: \"djs init <project name>\"")
+	}
+
+	var projectLocation string = location
+	if projectLocation == "" {
 		var locErr error
 		projectLocation, locErr = os.Getwd()
+		fmt.Println(projectLocation)
 		if locErr != nil {
 			var err = fmt.Errorf("could not resolve project location. Try specifying one: 'djs init %s <project location>'", name)
-			log.Fatalf("%v\n%v", err, locErr)
-			os.Exit(1)
+			Fatalf("%v\n%v", err, locErr)
 		}
+	}
+
+	if _, err := os.Stat(projectLocation); !os.IsNotExist(err) {
+		Infof("Nothing done since project '%s' at '%s' already exists", name, projectLocation)
+		os.Exit(0)
 	}
 
 	fmt.Printf("Info: Creating '%s' at '%s'\n", name, projectLocation)
 
 	var projectDir, dirErr = os.ReadDir(projectLocation)
 	if dirErr != nil {
-		log.Fatalf("could not read directory contents of '%s'\n%v", projectLocation, dirErr)
-		os.Exit(1)
+		Fatalf("could not read directory contents of '%s'\n%v", projectLocation, dirErr)
 	}
 	if len(projectDir) > 0 {
 		projectLocation += "/" + name
@@ -71,5 +98,6 @@ func InitProject(name string, location string) {
 	setupFolders(projectLocation)
 	setupTsTypes(projectLocation)
 	setupTsConfig(projectLocation)
+	setupTsIndex(projectLocation)
 
 }

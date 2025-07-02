@@ -104,9 +104,5 @@ declare global {
      * Same as console.log()
      */
     const print: (...data: any[]) => void;
-
-    const GUI: {
-        render: (root: JSX.IntrinsicElements) => void;
-    }
 }
 
