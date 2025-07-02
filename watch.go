@@ -2,18 +2,15 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/evanw/esbuild/pkg/api"
+	fsnotify "github.com/fsnotify/fsnotify"
 )
 
-func Watch() {
-	location, err := os.Getwd()
-	if err != nil {
-		Fatal("Could not get current working directory")
-	}
+func build(location string) {
 
-	Infof("Starting to watch \"%s/source\" for changes\n", location)
 	result := api.Build(api.BuildOptions{
 		EntryPoints:       []string{location + "/source/index.tsx"},
 		Outfile:           "./.internals/out/output.js",
@@ -49,7 +46,57 @@ func Watch() {
 	})
 	fmt.Printf("%s", api.AnalyzeMetafile(result.Metafile, api.AnalyzeMetafileOptions{Color: true}))
 
-	if len(result.Errors) > 0 {
-		os.Exit(1)
+	Info("Waiting for changes to rebuild...\n\n")
+}
+
+func setupWatcher(location string) {
+	// Create new watcher.
+	watcher, err := fsnotify.NewWatcher()
+	if err != nil {
+		log.Fatal(err)
 	}
+	defer watcher.Close()
+
+	// Start listening for events.
+	go func() {
+		for {
+			select {
+			case event, ok := <-watcher.Events:
+				if !ok {
+					return
+				}
+				log.Println("event:", event)
+				if event.Has(fsnotify.Write) {
+					log.Println("modified file:", event.Name)
+					build(location)
+				}
+			case err, ok := <-watcher.Errors:
+				if !ok {
+					return
+				}
+				log.Println("error:", err)
+			}
+		}
+	}()
+
+	// Add a path.
+	err = watcher.Add(location)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Block main goroutine forever.
+	<-make(chan struct{})
+}
+
+func Watch() {
+	location, err := os.Getwd()
+	if err != nil {
+		Fatal("Could not get current working directory")
+	}
+
+	Infof("Starting to watch \"%s/source\" for changes...\n", location)
+
+	build(location)
+	setupWatcher(location)
 }

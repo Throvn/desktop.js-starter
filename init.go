@@ -64,6 +64,15 @@ func setupTsIndex(location string) {
 	newTsConfig.Close()
 }
 
+func setupGitignore(location string) {
+	var file, err = os.Create(location + "/.gitignore")
+	if err != nil {
+		Fatalf("Could not create '/.gitignore' at '%s'\n%v\n", location, err)
+	}
+	file.WriteString(`.internals/`)
+	file.Close()
+}
+
 func InitProject(name string, location string) {
 	if name == "" {
 		Fatalf("no project name given. Try specifying one: \"djs init <project name>\"")
@@ -78,6 +87,8 @@ func InitProject(name string, location string) {
 			var err = fmt.Errorf("could not resolve project location. Try specifying one: 'djs init %s <project location>'", name)
 			Fatalf("%v\n%v", err, locErr)
 		}
+	} else {
+		projectLocation += "/" + name
 	}
 
 	if _, err := os.Stat(projectLocation); !os.IsNotExist(err) {
@@ -85,19 +96,12 @@ func InitProject(name string, location string) {
 		os.Exit(0)
 	}
 
-	fmt.Printf("Info: Creating '%s' at '%s'\n", name, projectLocation)
-
-	var projectDir, dirErr = os.ReadDir(projectLocation)
-	if dirErr != nil {
-		Fatalf("could not read directory contents of '%s'\n%v", projectLocation, dirErr)
-	}
-	if len(projectDir) > 0 {
-		projectLocation += "/" + name
-	}
-
 	setupFolders(projectLocation)
 	setupTsTypes(projectLocation)
 	setupTsConfig(projectLocation)
 	setupTsIndex(projectLocation)
+	setupGitignore(projectLocation)
+
+	Infof("Created '%s' at '%s'\n", name, projectLocation)
 
 }
