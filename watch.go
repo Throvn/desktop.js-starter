@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
+	"strings"
 
 	"github.com/evanw/esbuild/pkg/api"
 	fsnotify "github.com/fsnotify/fsnotify"
@@ -11,9 +13,11 @@ import (
 
 func build(location string) {
 
+	fmt.Println(strings.Repeat("-", 100) + "\n")
+
 	result := api.Build(api.BuildOptions{
-		EntryPoints:       []string{location + "/source/index.tsx"},
-		Outfile:           "./.internals/out/output.js",
+		EntryPoints:       []string{filepath.Join(location, "index.tsx")},
+		Outfile:           ".internals/out/output.js",
 		Bundle:            true,
 		Write:             true,
 		JSXFragment:       "\"group\"",
@@ -28,7 +32,7 @@ func build(location string) {
 		Sourcemap:         api.SourceMapExternal,
 		Metafile:          true,
 		Color:             api.ColorIfTerminal,
-		Tsconfig:          "./tsconfig.json",
+		Tsconfig:          "tsconfig.json",
 		Supported: map[string]bool{
 			"color-functions":          false,
 			"gradient-double-position": false,
@@ -44,9 +48,11 @@ func build(location string) {
 			"rebecca-purple":           false,
 		},
 	})
-	fmt.Printf("%s", api.AnalyzeMetafile(result.Metafile, api.AnalyzeMetafileOptions{Color: true}))
 
-	Info("Waiting for changes to rebuild...\n\n")
+	fmt.Printf("%s\n", api.AnalyzeMetafile(result.Metafile, api.AnalyzeMetafileOptions{Color: true}))
+
+	fmt.Println(strings.Repeat("-", 100) + "\n")
+	Info("Waiting for changes to rebuild...\n")
 }
 
 func setupWatcher(location string) {
@@ -65,9 +71,9 @@ func setupWatcher(location string) {
 				if !ok {
 					return
 				}
-				log.Println("event:", event)
+				// log.Println("event:", event)
 				if event.Has(fsnotify.Write) {
-					log.Println("modified file:", event.Name)
+					// log.Println("modified file:", event.Name)
 					build(location)
 				}
 			case err, ok := <-watcher.Errors:
@@ -90,14 +96,29 @@ func setupWatcher(location string) {
 }
 
 func Watch(location string) {
-	// TODO: Handle if location was given!
-	location, err := os.Getwd()
-	if err != nil {
-		Fatal("Could not get current working directory")
+	var projectLocation string = location
+	if projectLocation == "" {
+		// TODO: Handle if location was given!
+		var err error
+		projectLocation, err = os.Getwd()
+		if err != nil {
+			Fatal("Could not get current working directory")
+		}
 	}
 
-	Infof("Starting to watch \"%s/source\" for changes...\n", location)
+	_, fileName := filepath.Split(projectLocation)
+	var sourceLocation = projectLocation
+	if fileName != "source" {
+		sourceLocation = filepath.Join(projectLocation, "source")
+	}
+	_, err := os.ReadDir(projectLocation)
+	if err != nil {
+		Fatalf("No directory \"%s\" found to watch.\nMaybe try \"djs watch <path>\"\n%v", sourceLocation, err)
+	}
 
-	build(location)
-	setupWatcher(location)
+	fmt.Println()
+	Infof("Starting to watch \"%s\" for changes...\n", sourceLocation)
+
+	build(sourceLocation)
+	setupWatcher(sourceLocation)
 }
