@@ -98,8 +98,15 @@ func setupWatcher(location string) {
 }
 
 func startEngine(location string) {
-	fmt.Println(os.Getwd())
-	cmd := exec.Command(filepath.Join(location, ".internals/djs"))
+	fmt.Print(location, "\n")
+	binaryLocation := filepath.Join(location, ".internals/djs")
+	absBinaryLocation, err := filepath.Abs(binaryLocation)
+
+	if err != nil {
+		Fatalf("Could not get absolute path of engine\n%v", err)
+	}
+
+	cmd := exec.Command(absBinaryLocation, "watch", location)
 	if err := cmd.Run(); err != nil {
 		Fatalf("%v", err)
 	}
@@ -130,6 +137,6 @@ func Watch(location string) {
 	Infof("Starting to watch \"%s\" for changes...\n", sourceLocation)
 
 	build(sourceLocation)
+	go startEngine(location)
 	setupWatcher(sourceLocation)
-	startEngine(location)
 }
