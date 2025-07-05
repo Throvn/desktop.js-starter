@@ -17,7 +17,7 @@ func teardownProject(location string) {
 }
 
 func setupFolders(location string) {
-	var paths = []string{".internals", "assets", "assets/fonts", "source"}
+	var paths = []string{".internals", ".internals/javascript", "assets", "assets/fonts", "source"}
 	for i := 0; i < len(paths); i++ {
 		var mkDirErr = os.MkdirAll(location+"/"+paths[i], os.ModePerm)
 		if mkDirErr != nil {
@@ -30,7 +30,7 @@ func setupFolders(location string) {
 //go:embed templates/types.d.ts
 var tstypes string
 
-//go:embed templates/libgui.d.mts
+//go:embed templates/GUI.d.mts
 var tsguitypes string
 
 func setupTsTypes(location string) {
@@ -43,10 +43,10 @@ func setupTsTypes(location string) {
 	newTypes.WriteString(tstypes)
 	newTypes.Close()
 
-	var newGuiTypes, tsguitypeErr = os.Create(location + "/.internals/libgui.d.mts")
+	var newGuiTypes, tsguitypeErr = os.Create(location + "/.internals/GUI.d.mts")
 	if tsguitypeErr != nil {
 		teardownProject(location)
-		Fatalf("Could not create 'libgui.d.mts' at '%s/.internals'\n%v\n", location, tsguitypeErr)
+		Fatalf("Could not create 'GUI.d.mts' at '%s/.internals'\n%v\n", location, tsguitypeErr)
 	}
 
 	newGuiTypes.WriteString(tsguitypes)
@@ -85,6 +85,20 @@ func setupGitignore(location string) {
 		teardownProject(location)
 		Fatalf("Could not create '/.gitignore' at '%s'\n%v\n", location, err)
 	}
+	file.WriteString(`.internals/`)
+	file.Close()
+}
+
+//go:embed templates/Roboto-Regular.ttf
+var robotoFont []byte
+
+func setupFonts(location string) {
+	var file, err = os.Create(location + "/assets/fonts/Roboto-Regular.ttf")
+	if err != nil {
+		teardownProject(location)
+		Fatalf("Could not create '/assets/fonts/Roboto-Regular.ttf' at '%s'\n%v\n", location, err)
+	}
+	file.Write(robotoFont)
 	file.WriteString(`.internals/`)
 	file.Close()
 }
@@ -144,6 +158,7 @@ func InitProject(name string, location string) {
 	setupTsIndex(projectLocation)
 	setupGitignore(projectLocation)
 	setupIniFile(name, projectLocation)
+	setupFonts(projectLocation)
 
 	Infof("Created '%s' at '%s'\n", name, projectLocation)
 

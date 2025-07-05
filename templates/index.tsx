@@ -1,4 +1,4 @@
-import * as GUI from "libgui"
+import * as GUI from "GUI"
 
 class MyComponent {
     constructor(props: any) {

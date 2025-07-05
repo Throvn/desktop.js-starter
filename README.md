@@ -25,7 +25,9 @@ The project structure will look as follows:
 
 ```
 .internals/
+        out/
         types.d.ts
+        GUI.d.mts
 assets/
         fonts/
 source/

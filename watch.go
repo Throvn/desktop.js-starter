@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 
@@ -17,11 +18,11 @@ func build(location string) {
 
 	result := api.Build(api.BuildOptions{
 		EntryPoints:       []string{filepath.Join(location, "index.tsx")},
-		Outfile:           ".internals/out/output.js",
+		Outfile:           filepath.Join(location, "../.internals/javascript/index.js"),
 		Bundle:            true,
 		Write:             true,
 		JSXFragment:       "\"group\"",
-		JSXImportSource:   "libgui",
+		JSXImportSource:   "GUI",
 		Platform:          api.PlatformNeutral,
 		Target:            api.ES2023,
 		TreeShaking:       api.TreeShakingTrue,
@@ -32,7 +33,8 @@ func build(location string) {
 		Sourcemap:         api.SourceMapExternal,
 		Metafile:          true,
 		Color:             api.ColorIfTerminal,
-		Tsconfig:          "tsconfig.json",
+		Tsconfig:          filepath.Join(location, "../tsconfig.json"),
+		External:          []string{"GUI"},
 		Supported: map[string]bool{
 			"color-functions":          false,
 			"gradient-double-position": false,
@@ -95,6 +97,14 @@ func setupWatcher(location string) {
 	<-make(chan struct{})
 }
 
+func startEngine(location string) {
+	fmt.Println(os.Getwd())
+	cmd := exec.Command(filepath.Join(location, ".internals/djs"))
+	if err := cmd.Run(); err != nil {
+		Fatalf("%v", err)
+	}
+}
+
 func Watch(location string) {
 	var projectLocation string = location
 	if projectLocation == "" {
@@ -121,4 +131,5 @@ func Watch(location string) {
 
 	build(sourceLocation)
 	setupWatcher(sourceLocation)
+	startEngine(location)
 }
