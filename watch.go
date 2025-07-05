@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strings"
 
 	"github.com/evanw/esbuild/pkg/api"
@@ -17,8 +18,8 @@ func build(location string) {
 	fmt.Println(strings.Repeat("-", 100) + "\n")
 
 	result := api.Build(api.BuildOptions{
-		EntryPoints:       []string{filepath.Join(location, "index.tsx")},
-		Outfile:           filepath.Join(location, "../.internals/javascript/index.js"),
+		EntryPoints:       []string{filepath.Join(location, "source/index.tsx")},
+		Outfile:           filepath.Join(location, ".internals/javascript/index.js"),
 		Bundle:            true,
 		Write:             true,
 		JSXFragment:       "\"group\"",
@@ -33,7 +34,7 @@ func build(location string) {
 		Sourcemap:         api.SourceMapExternal,
 		Metafile:          true,
 		Color:             api.ColorIfTerminal,
-		Tsconfig:          filepath.Join(location, "../tsconfig.json"),
+		Tsconfig:          filepath.Join(location, "tsconfig.json"),
 		External:          []string{"GUI"},
 		Supported: map[string]bool{
 			"color-functions":          false,
@@ -88,7 +89,7 @@ func setupWatcher(location string) {
 	}()
 
 	// Add a path.
-	err = watcher.Add(location)
+	err = watcher.Add(filepath.Join(location, "source"))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -99,7 +100,14 @@ func setupWatcher(location string) {
 
 func startEngine(location string) {
 	fmt.Print(location, "\n")
-	binaryLocation := filepath.Join(location, ".internals/djs")
+
+	var binaryLocation string
+	if runtime.GOOS == "darwin" {
+		binaryLocation = filepath.Join(location, ".internals/djs-aarch64-macos")
+	} else {
+		Fatalf("No engine for target: %s", runtime.GOOS)
+	}
+
 	absBinaryLocation, err := filepath.Abs(binaryLocation)
 
 	if err != nil {
@@ -108,8 +116,10 @@ func startEngine(location string) {
 
 	cmd := exec.Command(absBinaryLocation, "watch", location)
 	if err := cmd.Run(); err != nil {
+		fmt.Println(cmd.Output())
 		Fatalf("%v", err)
 	}
+
 }
 
 func Watch(location string) {
@@ -136,7 +146,7 @@ func Watch(location string) {
 	fmt.Println()
 	Infof("Starting to watch \"%s\" for changes...\n", sourceLocation)
 
-	build(sourceLocation)
-	go startEngine(location)
-	setupWatcher(sourceLocation)
+	build(projectLocation)
+	go startEngine(projectLocation)
+	setupWatcher(projectLocation)
 }

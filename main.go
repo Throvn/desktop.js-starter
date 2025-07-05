@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"runtime"
 
 	flag "github.com/spf13/pflag"
 )
@@ -13,6 +14,11 @@ import (
 var version string
 
 func main() {
+
+	if runtime.GOOS != "darwin" {
+		Info("Desktop.js is currently only available for macOS.\nYou are not running on macOS.\nContribute to make it available on more platforms!")
+	}
+
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, "Usage of %s:\n", os.Args[0])
 		fmt.Fprintf(os.Stderr, `

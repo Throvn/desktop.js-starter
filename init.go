@@ -1,8 +1,10 @@
 package main
 
 import (
+	"bytes"
 	_ "embed"
 	"fmt"
+	"io"
 	"os"
 	"strings"
 )
@@ -107,7 +109,7 @@ func setupIniFile(name string, location string) {
 	var file, err = os.Create(location + "/djs.ini")
 	if err != nil {
 		teardownProject(location)
-		Fatalf("Could not create '/.gitignore' at '%s'\n%v\n", location, err)
+		Fatalf("Could not create '/.djs.ini' at '%s'\n%v\n", location, err)
 	}
 	file.WriteString(`
 [project]
@@ -120,6 +122,31 @@ height = 300
 	`)
 	file.Close()
 
+}
+
+//go:embed templates/djs-aarch64-macos
+var macosEngine []byte
+
+func setupEngine(location string) {
+	binPath := location + "/.internals/djs-aarch64-macos"
+	file, err := os.Create(binPath)
+	if err != nil {
+		teardownProject(location)
+		Fatalf("Could not create '%s'\n%v", binPath, err)
+	}
+	defer file.Close()
+
+	_, err = io.Copy(file, bytes.NewReader(macosEngine))
+	if err != nil {
+		teardownProject(location)
+		Fatalf("Could not write engine binary to '%s': %v", binPath, err)
+	}
+
+	err = file.Chmod(0777)
+	if err != nil {
+		teardownProject(location)
+		Fatalf("Could not make executable '%s': %v", binPath, err)
+	}
 }
 
 func InitProject(name string, location string) {
@@ -159,6 +186,7 @@ func InitProject(name string, location string) {
 	setupGitignore(projectLocation)
 	setupIniFile(name, projectLocation)
 	setupFonts(projectLocation)
+	setupEngine(projectLocation)
 
 	Infof("Created '%s' at '%s'\n", name, projectLocation)
 
