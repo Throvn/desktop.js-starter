@@ -17,19 +17,42 @@ type Padding = number | {
     bottom?: number;
 };
 
+type MouseEvent = {
+    layerX: number;
+    layerY: number;
+    altKey: boolean;
+    ctrlKey: boolean;
+    shiftKey: boolean;
+}
+
+type MouseDownEvent = MouseEvent & {
+    button: MouseBtn;
+};
+
+
 type TextProps = {
     id?: string;
     $backgroundColor?: HEX | NamedColors;
     $padding?: Padding;
+    onMouseDown?: (event: MouseDownEvent) => void;
+    onMouseOver?: (event: MouseEvent) => void;
 }
 
 type StackProps = {
     id?: string;
-    $padding?: Padding;
     $backgroundColor?: HEX | NamedColors;
+    $padding?: Padding;
+    onMouseDown?: (event: MouseDownEvent) => void;
+    onMouseOver?: (event: MouseEvent) => void;
 }
 
 declare global {
+    enum MouseBtn {
+        left = 0,
+        middle = 1,
+        right = 2,
+    }
+
     namespace JSX {
         interface IntrinsicElements {
             /**
