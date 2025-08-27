@@ -151,42 +151,40 @@ func setupEngine(location string) {
 }
 
 func InitProject(location string) {
-	name := path.Base(location)
+	absPath, absErr := filepath.Abs(location)
+	if absErr != nil {
+		Fatalf("Could not get absolute path of '%s'", location)
+	}
+	name := path.Base(absPath)
 
 	// Determine location of the project root.
-	// Either cwd, or cwd/projectName
-	var projectLocation string = location
-	if projectLocation == "" {
+	if location == "" {
 		var locErr error
-		projectLocation, locErr = os.Getwd()
-		fmt.Println(projectLocation)
+		location, locErr = os.Getwd()
+		fmt.Println(location)
 		if locErr != nil {
 			var err = fmt.Errorf("could not resolve project location. Try specifying one: 'djs init <location>'")
 			Fatalf("%v\n%v", err, locErr)
 		}
 	}
 
-	contents, err := os.ReadDir(projectLocation)
-	absPath, absErr := filepath.Abs(projectLocation)
-	if absErr != nil {
-		Fatalf("Could not get absolute path of '%s'", projectLocation)
-	}
+	contents, err := os.ReadDir(location)
 	if err != nil {
 		Fatalf("Could not read contents of directory '%s'", absPath)
 	}
 	if len(contents) > 0 {
-		Fatalf("Directory '%s' is not empty. Try specifying a location: 'djs init <location>'", absPath)
+		Fatalf("Directory '%s' is not empty. Try specifying a location: 'djs init <location>'", name)
 	}
 
-	setupFolders(projectLocation)
-	setupTsTypes(projectLocation)
-	setupTsConfig(projectLocation)
-	setupTsIndex(projectLocation)
-	setupGitignore(projectLocation)
-	setupIniFile(name, projectLocation)
-	setupFonts(projectLocation)
-	setupEngine(projectLocation)
+	setupFolders(location)
+	setupTsTypes(location)
+	setupTsConfig(location)
+	setupTsIndex(location)
+	setupGitignore(location)
+	setupIniFile(name, location)
+	setupFonts(location)
+	setupEngine(location)
 
-	Infof("Created '%s' at '%s'", name, projectLocation)
+	Infof("Created '%s'", absPath)
 
 }
