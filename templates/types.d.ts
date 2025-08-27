@@ -9,7 +9,15 @@ export { };
 type HEX = `#${string}`;
 type NamedColors = "transparent" | "aliceblue" | "antiquewhite" | "aqua" | "aquamarine" | "azure" | "beige" | "bisque" | "black" | "blanchedalmond" | "blue" | "blueviolet" | "brown" | "burlywood" | "cadetblue" | "chartreuse" | "chocolate" | "coral" | "cornflowerblue" | "cornsilk" | "crimson" | "cyan" | "darkblue" | "darkcyan" | "darkgoldenrod" | "darkgray" | "darkgreen" | "darkgrey" | "darkkhaki" | "darkmagenta" | "darkolivegreen" | "darkorange" | "darkorchid" | "darkred" | "darksalmon" | "darkseagreen" | "darkslateblue" | "darkslategray" | "darkslategrey" | "darkturquoise" | "darkviolet" | "deeppink" | "deepskyblue" | "dimgray" | "dimgrey" | "dodgerblue" | "firebrick" | "floralwhite" | "forestgreen" | "fuchsia" | "gainsboro" | "ghostwhite" | "gold" | "goldenrod" | "gray" | "green" | "greenyellow" | "grey" | "honeydew" | "hotpink" | "indianred" | "indigo" | "ivory" | "khaki" | "lavender" | "lavenderblush" | "lawngreen" | "lemonchiffon" | "lightblue" | "lightcoral" | "lightcyan" | "lightgoldenrodyellow" | "lightgray" | "lightgreen" | "lightgrey" | "lightpink" | "lightsalmon" | "lightseagreen" | "lightskyblue" | "lightslategray" | "lightslategrey" | "lightsteelblue" | "lightyellow" | "lime" | "limegreen" | "linen" | "magenta" | "maroon" | "mediumaquamarine" | "mediumblue" | "mediumorchid" | "mediumpurple" | "mediumseagreen" | "mediumslateblue" | "mediumspringgreen" | "mediumturquoise" | "mediumvioletred" | "midnightblue" | "mintcream" | "mistyrose" | "moccasin" | "navajowhite" | "navy" | "oldlace" | "olive" | "olivedrab" | "orange" | "orangered" | "orchid" | "palegoldenrod" | "palegreen" | "paleturquoise" | "palevioletred" | "papayawhip" | "peachpuff" | "peru" | "pink" | "plum" | "powderblue" | "purple" | "red" | "rosybrown" | "royalblue" | "saddlebrown" | "salmon" | "sandybrown" | "seagreen" | "seashell" | "sienna" | "silver" | "skyblue" | "slateblue" | "slategray" | "slategrey" | "snow" | "springgreen" | "steelblue" | "tan" | "teal" | "thistle" | "tomato" | "turquoise" | "violet" | "wheat" | "white" | "whitesmoke" | "yellow" | "yellowgreen";
 type Padding = number | {
+    /**
+     * Applies padding to the **left** and **right**.
+     * Individual sides take precedent.
+     */
     horizontal?: number;
+    /**
+     * Applies padding to the **top** and **bottom**.
+     * Individual sides take precedent.
+     */
     vertical?: number;
     left?: number;
     right?: number;
@@ -18,16 +26,41 @@ type Padding = number | {
 };
 
 type MouseEvent = {
+    /**
+     * The `x` coordinate from the left window edge to the mouse.
+     * Always positive.
+     */
     layerX: number;
+    /**
+     * The `y` coordinate from the top window edge to the mouse.
+     * Always positive.
+     */
     layerY: number;
+    /**
+     * Indicates if the left or right ALT key was pressed during the mouse event.
+     * 
+     * On macOS ALT is the Option (`⌥`) key.
+     */
     altKey: boolean;
+    /**
+     * Indicates if the left or right CTRL (`⌃`) key was pressed during the mouse event.
+     */
     ctrlKey: boolean;
+    /**
+     * Indicates if the SHIFT (`⇧`) key was pressed during the mouse event.
+     */
     shiftKey: boolean;
 }
 
-type MouseDownEvent = MouseEvent & {
+type MouseEventWithButton = MouseEvent & {
+    /**
+     * The index of the button which was pressed or released.
+     */
     button: MouseBtn;
 };
+
+type MouseDownEvent = MouseEventWithButton;
+type MouseUpEvent = MouseEventWithButton;
 
 
 type TextProps = {
@@ -36,6 +69,7 @@ type TextProps = {
     $padding?: Padding;
     onMouseDown?: (event: MouseDownEvent) => void;
     onMouseOver?: (event: MouseEvent) => void;
+    onMouseUp?: (event: MouseUpEvent) => void;
 }
 
 type StackProps = {
@@ -44,13 +78,14 @@ type StackProps = {
     $padding?: Padding;
     onMouseDown?: (event: MouseDownEvent) => void;
     onMouseOver?: (event: MouseEvent) => void;
+    onMouseUp?: (event: MouseUpEvent) => void;
 }
 
 declare global {
     enum MouseBtn {
         left = 0,
-        middle = 1,
-        right = 2,
+        right = 1,
+        middle = 2,
     }
 
     namespace JSX {
@@ -122,10 +157,5 @@ declare global {
          */
         log(...data: any[]): void;
     }
-
-    /**
-     * Same as console.log()
-     */
-    const print: (...data: any[]) => void;
 }
 
