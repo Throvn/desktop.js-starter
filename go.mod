@@ -1,4 +1,4 @@
-module github.com/Throvn/desktop.js-starter
+module github.com/Throvn/djs
 
 go 1.19
 

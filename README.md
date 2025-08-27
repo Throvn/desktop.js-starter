@@ -13,13 +13,13 @@ First you want to initialize a new project.
 The following command will create the folder structure for you.
 
 ```shell
-djs init <name> <path?>
+djs init <path>
+# e.g. djs init ./my-project
 ```
 
 **Parameters**
 
-- name: The name of the project (will show up as the window name)
-- path: Optional. Where you want to create the project. Default is your cwd. If your cwd is full, it will create the project under <cwd>/`<name>`/
+- path: Where you want to create the project. Needs to be a not yet existing or empty folder path.
 
 The project structure will look as follows:
 
@@ -32,18 +32,18 @@ assets/
         fonts/
 source/
         index.tsx
+.gitignore
 tsconfig.json
-types.d.ts
 djs.ini
 ```
 
 Note the `.internals/` directory is for temporary files.
-All contents inside are generated and **you should not use it and you should not care**!
+All contents inside are generated. **You should not use it and you should not care**!
 
 But in case you do care:
 
 - It includes `types.d.ts` to set up autocomplete in your editor (assuming it's VSCode).
-- The output of the bundler are also saved in there under `out/`.
+- The output of the bundler are also saved in there under `javascript/`.
 
 The `assets/` directory is bundled as is into your package.
 Apart from the fonts directory, which **absolutely needs to be there** and is not allowed to have anything other than `.tff` fonts inside, you can freely choose the directory structure.
@@ -74,5 +74,5 @@ Observes the `source/` directory for changes and rebundles the output.
 The rebundled changes are then loaded and displayed.
 
 ```shell
-djs package
+djs bundle
 ```

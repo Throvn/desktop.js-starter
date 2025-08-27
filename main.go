@@ -22,7 +22,7 @@ func main() {
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, "Usage of %s:\n", os.Args[0])
 		fmt.Fprintf(os.Stderr, `
-init <name> <location> | Creates a new project at the specified location
+init <location>        | Creates a new project at the specified location
 watch <location>       | Starts live reload for the given project
 version                | Prints the current starter version
 help                   | Prints this help
@@ -32,9 +32,8 @@ help                   | Prints this help
 	var command = flag.Arg(0)
 	switch command {
 	case "init":
-		var name = flag.Arg(1)
-		var location = filepath.Clean(flag.Arg(2))
-		InitProject(name, location)
+		var location = filepath.Clean(flag.Arg(1))
+		InitProject(location)
 	case "watch":
 		var location = filepath.Clean(flag.Arg(1))
 		Watch(location)

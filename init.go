@@ -6,7 +6,8 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"strings"
+	"path"
+	"path/filepath"
 )
 
 func teardownProject(location string) {
@@ -149,14 +150,8 @@ func setupEngine(location string) {
 	}
 }
 
-func InitProject(name string, location string) {
-	if name == "" {
-		Fatalf("no project name given. Try specifying one: \"djs init <project name>\"")
-	}
-
-	// Sanitize project name
-	name = strings.ReplaceAll(name, " ", "-")
-	name = strings.ToLower(name)
+func InitProject(location string) {
+	name := path.Base(location)
 
 	// Determine location of the project root.
 	// Either cwd, or cwd/projectName
@@ -166,17 +161,21 @@ func InitProject(name string, location string) {
 		projectLocation, locErr = os.Getwd()
 		fmt.Println(projectLocation)
 		if locErr != nil {
-			var err = fmt.Errorf("could not resolve project location. Try specifying one: 'djs init %s <project location>'", name)
+			var err = fmt.Errorf("could not resolve project location. Try specifying one: 'djs init <location>'")
 			Fatalf("%v\n%v", err, locErr)
 		}
-	} else {
-		projectLocation += "/" + name
 	}
 
-	// Check that we don't overwrite existing projects or folders
-	if _, err := os.Stat(projectLocation); !os.IsNotExist(err) {
-		Infof("Nothing done since project '%s' at '%s' already exists", name, projectLocation)
-		os.Exit(0)
+	contents, err := os.ReadDir(projectLocation)
+	absPath, absErr := filepath.Abs(projectLocation)
+	if absErr != nil {
+		Fatalf("Could not get absolute path of '%s'", projectLocation)
+	}
+	if err != nil {
+		Fatalf("Could not read contents of directory '%s'", absPath)
+	}
+	if len(contents) > 0 {
+		Fatalf("Directory '%s' is not empty. Try specifying a location: 'djs init <location>'", absPath)
 	}
 
 	setupFolders(projectLocation)
@@ -188,6 +187,6 @@ func InitProject(name string, location string) {
 	setupFonts(projectLocation)
 	setupEngine(projectLocation)
 
-	Infof("Created '%s' at '%s'\n", name, projectLocation)
+	Infof("Created '%s' at '%s'", name, projectLocation)
 
 }
