@@ -54,19 +54,21 @@ func build(location string) {
 
 	fmt.Printf("%s\n", api.AnalyzeMetafile(result.Metafile, api.AnalyzeMetafileOptions{Color: true}))
 
-	fmt.Println(strings.Repeat("-", 100) + "\n")
+	fmt.Println(strings.Repeat("_", 100) + "\n")
 	Info("Waiting for changes to rebuild...\n")
 }
 
 func setupWatcher(location string) {
-	// Create new watcher.
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer watcher.Close()
 
-	// Start listening for events.
+	// Start first engine
+	stop := make(chan struct{})
+	go startEngine(stop, location)
+
 	go func() {
 		for {
 			select {
@@ -74,11 +76,20 @@ func setupWatcher(location string) {
 				if !ok {
 					return
 				}
-				// log.Println("event:", event)
 				if event.Has(fsnotify.Write) {
-					// log.Println("modified file:", event.Name)
+					log.Printf("[Watch] Change detected: %s", event.Name)
+
+					// rebuild js
 					build(location)
+
+					// stop old engine
+					close(stop)
+
+					// start new engine
+					stop = make(chan struct{})
+					go startEngine(stop, location)
 				}
+
 			case err, ok := <-watcher.Errors:
 				if !ok {
 					return
@@ -88,18 +99,22 @@ func setupWatcher(location string) {
 		}
 	}()
 
-	// Add a path.
+	// Add source directory to watcher
 	err = watcher.Add(filepath.Join(location, "source"))
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	// Block main goroutine forever.
-	<-make(chan struct{})
+	// Block main goroutine forever
+	select {}
 }
 
-func startEngine(location string) {
-	fmt.Print(location, "\n")
+func startEngine(stopChan <-chan struct{}, projectLocation string) {
+	location, err := filepath.Abs(projectLocation)
+	if err != nil {
+		Fatalf("Could not get absolute path of '%s'", projectLocation)
+	}
+	fmt.Println("Starting engine for:", location)
 
 	var binaryLocation string
 	if runtime.GOOS == "darwin" {
@@ -109,17 +124,26 @@ func startEngine(location string) {
 	}
 
 	absBinaryLocation, err := filepath.Abs(binaryLocation)
-
 	if err != nil {
 		Fatalf("Could not get absolute path of engine\n%v", err)
 	}
 
-	cmd := exec.Command(absBinaryLocation, "watch", location)
-	if err := cmd.Run(); err != nil {
-		fmt.Println(cmd.Output())
-		Fatalf("%v", err)
+	cmd := exec.Command(absBinaryLocation, "run", filepath.Join(location, ".internals/javascript/index.js"))
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	if err := cmd.Start(); err != nil {
+		Fatalf("Failed to start engine: %v", err)
 	}
 
+	go func() {
+		<-stopChan // wait for stop signal
+		if err := cmd.Process.Kill(); err != nil {
+			log.Printf("[Watch] Failed to kill process: %v", err)
+		} else {
+			log.Printf("[Watch] Killed old engine")
+		}
+	}()
 }
 
 func Watch(location string) {
@@ -147,6 +171,5 @@ func Watch(location string) {
 	Infof("Starting to watch \"%s\" for changes...\n", sourceLocation)
 
 	build(projectLocation)
-	go startEngine(projectLocation)
 	setupWatcher(projectLocation)
 }
