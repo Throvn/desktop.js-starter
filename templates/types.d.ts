@@ -62,10 +62,45 @@ type MouseEventWithButton = MouseEvent & {
 type MouseDownEvent = MouseEventWithButton;
 type MouseUpEvent = MouseEventWithButton;
 
+/**
+ * Determines how rounded the corners of an element (e.g. stack) are. 
+ * 
+ * Union radii (like top or bottom) are evaluated first, 
+ * which makes it possible to overwrite part of the values 
+ * through more fine grained properties like `topLeft`.
+ */
+interface BorderRadius {
+    top?: number;
+    bottom?: number;
+    left?: number;
+    right?: number;
+    topLeft?: number;
+    topRight?: number;
+    bottomLeft?: number;
+    bottomRight?: number;
+}
 
 type TextProps = {
     id?: string;
+    $borderRadius?: number | BorderRadius;
     $backgroundColor?: HEX | NamedColors;
+    /**
+     * Applied to the text itself.
+     * Supported color types are: HTML Colors or hex colors with or without an alpha value.
+     */
+    $color?: HEX | NamedColors;
+    /**
+     * Font size is generally thought of as `x pixels tall`. Default is 12 (pixels tall).
+     */
+    $fontSize?: number;
+    /**
+     * Results in horizontal whitespace between the individual characters.
+     */
+    $letterSpacing?: number;
+    /**
+     * Determines how tall the text should be. Default is 12 (just like the font size).
+     */
+    $lineHeight?: number;
     $padding?: Padding;
     onMouseDown?: (event: MouseDownEvent) => void;
     onMouseOver?: (event: MouseEvent) => void;
@@ -74,7 +109,12 @@ type TextProps = {
 
 type StackProps = {
     id?: string;
+    $borderRadius?: number | BorderRadius;
     $backgroundColor?: HEX | NamedColors;
+    /**
+     * Adds `x px` of spacing between the child elements of a stack.
+     */
+    $gap?: number;
     $padding?: Padding;
     onMouseDown?: (event: MouseDownEvent) => void;
     onMouseOver?: (event: MouseEvent) => void;
