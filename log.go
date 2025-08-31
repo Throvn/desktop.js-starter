@@ -4,9 +4,23 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 
 	chalk "github.com/fatih/color"
+	"golang.org/x/term"
 )
+
+func getTerminalWidth() int {
+	width, _, err := term.GetSize(0)
+	if err != nil {
+		return 50
+	}
+	return width
+}
+
+func PrintDivider(title string) {
+	fmt.Println(title + strings.Repeat("-", getTerminalWidth()-len(title)) + "\n")
+}
 
 func Fatal(str string) {
 	redBg := chalk.New(chalk.BgRed).Add(chalk.FgWhite)

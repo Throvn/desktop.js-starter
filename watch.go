@@ -7,7 +7,6 @@ import (
 	"os/exec"
 	"path/filepath"
 	"runtime"
-	"strings"
 
 	"github.com/evanw/esbuild/pkg/api"
 	fsnotify "github.com/fsnotify/fsnotify"
@@ -15,9 +14,7 @@ import (
 
 func build(location string) {
 
-	fmt.Println(strings.Repeat("-", 100) + "\n")
-
-	result := api.Build(api.BuildOptions{
+	api.Build(api.BuildOptions{
 		EntryPoints:       []string{filepath.Join(location, "source/index.tsx")},
 		Outfile:           filepath.Join(location, ".internals/javascript/index.js"),
 		Bundle:            true,
@@ -27,7 +24,7 @@ func build(location string) {
 		Platform:          api.PlatformNeutral,
 		Target:            api.ES2023,
 		TreeShaking:       api.TreeShakingTrue,
-		LogLevel:          api.LogLevelInfo,
+		LogLevel:          api.LogLevelWarning,
 		MinifyWhitespace:  true,
 		MinifyIdentifiers: true,
 		MinifySyntax:      true,
@@ -52,10 +49,9 @@ func build(location string) {
 		},
 	})
 
-	fmt.Printf("%s\n", api.AnalyzeMetafile(result.Metafile, api.AnalyzeMetafileOptions{Color: true}))
-
-	fmt.Println(strings.Repeat("_", 100) + "\n")
-	Info("Waiting for changes to rebuild...\n")
+	fmt.Println()
+	var title = "--- Engine Output "
+	PrintDivider(title)
 }
 
 func setupWatcher(location string) {
@@ -77,6 +73,7 @@ func setupWatcher(location string) {
 					return
 				}
 				if event.Has(fsnotify.Write) {
+					PrintDivider("")
 					log.Printf("[Watch] Change detected: %s", event.Name)
 
 					// rebuild js
@@ -114,7 +111,6 @@ func startEngine(stopChan <-chan struct{}, projectLocation string) {
 	if err != nil {
 		Fatalf("Could not get absolute path of '%s'", projectLocation)
 	}
-	fmt.Println("Starting engine for:", location)
 
 	var binaryLocation string
 	if runtime.GOOS == "darwin" {
@@ -140,8 +136,6 @@ func startEngine(stopChan <-chan struct{}, projectLocation string) {
 		<-stopChan // wait for stop signal
 		if err := cmd.Process.Kill(); err != nil {
 			log.Printf("[Watch] Failed to kill process: %v", err)
-		} else {
-			log.Printf("[Watch] Killed old engine")
 		}
 	}()
 }

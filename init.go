@@ -16,13 +16,12 @@ func teardownProject(location string) {
 	if err != nil {
 		Fatalf("Error while reverting: %v", err)
 	}
-	fmt.Println()
 }
 
 func setupFolders(location string) {
 	var paths = []string{".internals", ".internals/javascript", "assets", "assets/fonts", "source"}
 	for i := 0; i < len(paths); i++ {
-		var mkDirErr = os.MkdirAll(location+"/"+paths[i], os.ModePerm)
+		var mkDirErr = os.MkdirAll(filepath.Join(location, paths[i]), 0o777)
 		if mkDirErr != nil {
 			teardownProject(location)
 			Fatalf("Could not create 'assets' directory at '%s'\n%v", location, mkDirErr)
@@ -35,6 +34,9 @@ var tstypes string
 
 //go:embed templates/GUI.d.mts
 var tsguitypes string
+
+//go:embed templates/txiki.d.ts
+var tstxikitypes string
 
 func setupTsTypes(location string) {
 	var newTypes, tstypeErr = os.Create(location + "/.internals/types.d.ts")
@@ -54,6 +56,15 @@ func setupTsTypes(location string) {
 
 	newGuiTypes.WriteString(tsguitypes)
 	newGuiTypes.Close()
+
+	var newTxikiTypes, tsTxikiTypeErr = os.Create(location + "/.internals/txiki.d.ts")
+	if tsTxikiTypeErr != nil {
+		teardownProject(location)
+		Fatalf("Could not create 'txiki.d.mts' at '%s/.internals'\n%v\n", location, tsTxikiTypeErr)
+	}
+
+	newTxikiTypes.WriteString(tstxikitypes)
+	newTxikiTypes.Close()
 }
 
 //go:embed templates/tsconfig.json
@@ -88,7 +99,7 @@ func setupGitignore(location string) {
 		teardownProject(location)
 		Fatalf("Could not create '/.gitignore' at '%s'\n%v\n", location, err)
 	}
-	file.WriteString(`.internals/`)
+	file.WriteString(".internals/\n*.app\n")
 	file.Close()
 }
 
@@ -110,7 +121,7 @@ func setupIniFile(name string, location string) {
 	var file, err = os.Create(location + "/djs.ini")
 	if err != nil {
 		teardownProject(location)
-		Fatalf("Could not create '/.djs.ini' at '%s'\n%v\n", location, err)
+		Fatalf("Could not create '/djs.ini' at '%s'\n%v\n", location, err)
 	}
 	file.WriteString(`
 [project]
@@ -128,8 +139,8 @@ height = 300
 //go:embed templates/djs-aarch64-macos
 var macosEngine []byte
 
-func setupEngine(location string) {
-	binPath := location + "/.internals/djs-aarch64-macos"
+func setupEngine(location string) string {
+	binPath := filepath.Join(location, "djs-aarch64-macos")
 	file, err := os.Create(binPath)
 	if err != nil {
 		teardownProject(location)
@@ -143,11 +154,13 @@ func setupEngine(location string) {
 		Fatalf("Could not write engine binary to '%s': %v", binPath, err)
 	}
 
-	err = file.Chmod(0777)
+	err = file.Chmod(0o777)
 	if err != nil {
 		teardownProject(location)
 		Fatalf("Could not make executable '%s': %v", binPath, err)
 	}
+
+	return binPath
 }
 
 func InitProject(location string) {
@@ -170,7 +183,11 @@ func InitProject(location string) {
 
 	contents, err := os.ReadDir(location)
 	if err != nil {
-		Fatalf("Could not read contents of directory '%s'", absPath)
+		Warnf("Could not read contents of directory '%s'", absPath)
+		err = os.MkdirAll(absPath, 0o777)
+		if err != nil {
+			Fatalf("Creating project directory at '%s' failed", absPath)
+		}
 	}
 	if len(contents) > 0 {
 		Fatalf("Directory '%s' is not empty. Try specifying a location: 'djs init <location>'", name)
@@ -183,8 +200,8 @@ func InitProject(location string) {
 	setupGitignore(location)
 	setupIniFile(name, location)
 	setupFonts(location)
-	setupEngine(location)
+	setupEngine(filepath.Join(location, ".internals"))
 
 	Infof("Created '%s'", absPath)
-
+	os.Chdir(location)
 }
