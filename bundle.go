@@ -78,7 +78,7 @@ func deleteAppBundleDarwin(name string) {
 }
 
 func Bundle(name string) {
-	if name == "" {
+	if name == "" || name == "." {
 		Fatal("Please supply an app name.\nE.g. djs bundle MyCoolApp")
 	}
 
