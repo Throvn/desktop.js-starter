@@ -25,7 +25,7 @@ The project structure will look as follows:
 
 ```
 .internals/
-        out/
+        javascript/
         types.d.ts
         GUI.d.mts
 assets/
@@ -63,7 +63,9 @@ height = 300
 ```
 
 This file exists for global configurations.
-If you adjust the file, you need to restart `djs` (in case you were in live reload mode).
+If you adjust the file, you need to restart `djs` (in case you were in `watch` mode).
+
+---
 
 ```shell
 djs watch <path?>
@@ -73,6 +75,13 @@ Needs to be started in the project root.
 Observes the `source/` directory for changes and rebundles the output.
 The rebundled changes are then loaded and displayed.
 
+---
+
 ```shell
 djs bundle
 ```
+
+Needs to be started in teh project root.
+Currently works only on macOS.
+Bundles the code together with the engine into an app bundle.
+The app bundle will be created inside of project root.
