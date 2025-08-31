@@ -23,5 +23,5 @@ declare module "GUI" {
      * @param root Entry point of your render tree.
      * @param options Initial window options object.
      */
-    function render(root: JSX.IntrinsicElements, options: InitialRenderOptions): void;
+    function render(root: JSX.IntrinsicElements, options?: InitialRenderOptions): void;
 }

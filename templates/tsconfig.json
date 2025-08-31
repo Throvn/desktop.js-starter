@@ -9,6 +9,10 @@
     "strict": true,
     "useUnknownInCatchVariables": true,
     "lib": ["ESNext"],
-    "types": ["./.internals/types.d.ts", "./.internals/GUI.d.mts"]
+    "types": [
+      "./.internals/types.d.ts",
+      "./.internals/GUI.d.mts",
+      "./.internals/txiki.d.ts",
+    ]
   }
 }

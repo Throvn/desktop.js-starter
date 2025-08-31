@@ -1,6 +1,8 @@
 module github.com/Throvn/djs
 
-go 1.19
+go 1.23.0
+
+toolchain go1.24.5
 
 require (
 	github.com/evanw/esbuild v0.25.5
@@ -13,5 +15,6 @@ require (
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/ttacon/chalk v0.0.0-20160626202418-22c06c80ed31 // indirect
-	golang.org/x/sys v0.25.0 // indirect
+	golang.org/x/sys v0.35.0 // indirect
+	golang.org/x/term v0.34.0
 )

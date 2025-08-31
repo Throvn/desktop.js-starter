@@ -24,6 +24,7 @@ func main() {
 		fmt.Fprintf(os.Stderr, `
 init <location>        | Creates a new project at the specified location
 watch <location>       | Starts live reload for the given project
+bundle <app_name>      | (MacOS only) Creates an appbundle
 version                | Prints the current starter version
 help                   | Prints this help
 		`)
@@ -39,6 +40,9 @@ help                   | Prints this help
 		Watch(location)
 	case "version":
 		fmt.Printf("djs %s\n", version)
+	case "bundle":
+		var bundleName = filepath.Clean((flag.Arg(1)))
+		Bundle(bundleName)
 
 	case "help":
 		fallthrough
