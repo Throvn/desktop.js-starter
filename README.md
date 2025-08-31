@@ -1,5 +1,23 @@
 # Desktop.js CLI
 
+> [!NOTE]
+> Only works on macOS using ARM processors right now.
+
+## Installation
+
+Since I've only tested on mac, I'm assuming you are on a mac with an M-series chip.
+
+1. Go to the github releases page.
+2. Download `djs` (it's the compiled binary)
+3. Move the binary to ` /usr/local/bin/`
+4. In the terminal run `djs help` to test if the executable is accessible.
+
+### Build
+
+1. Clone this repo
+2. run `./run.sh` in the project root (you will be prompted for your password)
+3. Enter your password. This is only needed to copy the go binary to `/usr/local/bin` to make it executable systemwide. If you don't like to give sudo permissions, just run `go build` and you are done. Note though, that some of the commands make use of the current directory, which is a bit annoying if you don't have the executable in your `/usr/local/bin` directory.
+
 This program sets up your development environment for developing Desktop.js apps.
 
 - It takes your JS/TS sources, bundles them and runs them.
@@ -81,7 +99,7 @@ The rebundled changes are then loaded and displayed.
 djs bundle
 ```
 
-Needs to be started in teh project root.
+Needs to be started in the project root.
 Currently works only on macOS.
 Bundles the code together with the engine into an app bundle.
 The app bundle will be created inside of project root.
