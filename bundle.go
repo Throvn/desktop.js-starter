@@ -1,11 +1,41 @@
 package main
 
 import (
+	"errors"
 	"fmt"
+	"image"
 	"os"
 	"path/filepath"
 	"runtime"
+
+	"github.com/jackmordaunt/icns"
 )
+
+func addAppIconDarwin(location string, name string) {
+	rawIcon := filepath.Join(location, "..", "..", "assets", "icon.png")
+	if _, err := os.Stat(rawIcon); errors.Is(err, os.ErrNotExist) {
+		return
+	}
+
+	pngf, err := os.Open(rawIcon)
+	if err != nil {
+		return
+	}
+	defer pngf.Close()
+	srcImg, _, err := image.Decode(pngf)
+	if err != nil {
+		Fatalf("decoding source image: %v", err)
+	}
+	newIcon := filepath.Join(location, "Resources", name+".icns")
+	dest, err := os.Create(newIcon)
+	if err != nil {
+		Fatalf("opening destination file: %v", err)
+	}
+	defer dest.Close()
+	if err := icns.Encode(dest, srcImg); err != nil {
+		Fatalf("encoding icns: %v", err)
+	}
+}
 
 func createAppBundleDarwin(name string) {
 
@@ -31,6 +61,8 @@ func createAppBundleDarwin(name string) {
 		Fatalf("Could not create Resources folder")
 	}
 
+	addAppIconDarwin(bundleLocation, name)
+
 	pListFile, err := os.Create(filepath.Join(bundleLocation, "Info.plist"))
 	if err != nil {
 		Fatal("Could not create 'Info.plist' inside of appbundle which is required")
@@ -50,6 +82,8 @@ func createAppBundleDarwin(name string) {
 		<key>CFBundleShortVersionString</key>
 		<string>1.0</string>
 		<key>CFBundleExecutable</key>
+		<string>` + name + `</string>
+		<key>CFBundleIconFile</key>
 		<string>` + name + `</string>
 	</dict>
 </plist>
