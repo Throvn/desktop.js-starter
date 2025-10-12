@@ -184,6 +184,24 @@ declare global {
              * This component doesn't take any props.
              */
             "spacer": {},
+
+            /**
+             * A component to display an image. It's children are displayed only if the the supplied `data` prop is not a valid `Blob` object, functioning as a placeholder.
+             *
+             * If the `$width` and or `$height` attributes are set before the image loaded, the placeholder will receive the same dimensions.
+             * 
+             * #### Supported image types
+             * - `image/bmp`
+             * - `image/gif` Only shows the first frame. Not moving images!
+             * - `image/jpeg`
+             * - `image/png`
+             * - `image/psd`
+             */
+            "img": {
+                $width?: number,
+                $height?: number,
+                data: any, // TODO: Make this the Blob type!
+            }
         }
     }
 
