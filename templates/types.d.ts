@@ -209,6 +209,7 @@ declare global {
              * - `image/psd`
              */
             "img": {
+                $borderRadius?: BorderRadius,
                 $width?: number,
                 $height?: number,
                 data: any, // TODO: Make this the Blob type!
