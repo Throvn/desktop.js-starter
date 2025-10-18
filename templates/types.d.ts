@@ -239,11 +239,22 @@ declare global {
     const setInterval: (func: Function, delay: number) => number;
 
     /**
+     * The clearInterval() method cancels a timed, repeating action which was previously established by a call to setInterval(). If the parameter provided does not identify a previously established action, this method does nothing.
+     * @param intervalId The identifier of the repeated action you want to cancel. This ID was returned by the corresponding call to setInterval().
+     */
+    const clearInterval: (intervalId: number) => void;
+
+    /**
      * The setTimeout() method sets a timer which executes a function or specified piece of code once the timer expires.
      * @returns The setTimeout() method returns a positive integer (typically within the range of 1 to 2,147,483,647) that uniquely identifies the timer created by the call. This identifier, often referred to as a "timeout ID", can be passed to clearTimeout() to cancel the timer.
      */
     const setTimeout: (func: Function, delay: number) => number;
 
-
+    /**
+     * The clearTimeout() method cancels a timeout previously established by calling Window.setTimeout().
+     * If the parameter provided does not identify a previously established action, this method does nothing.
+     * @param timeoutId The identifier of the timeout you want to cancel. This ID was returned by the corresponding call to setTimeout().
+     */
+    const clearTimeout: (timeoutId: number) => void;
 }
 
