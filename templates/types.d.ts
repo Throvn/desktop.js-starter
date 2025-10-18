@@ -94,6 +94,17 @@ type TextProps = {
      */
     $fontSize?: number;
     /**
+     * The file name of the font file which is located under `assets/fonts`.
+     * 
+     * E.g.
+     * assets/fonts/Roboto-Regular.ttf
+     * 
+     * ```js
+     * <text $fontFace="Roboto-Regular.ttf">I have a different font face!</text>
+     * ```
+     */
+    $fontFace?: string;
+    /**
      * Results in horizontal whitespace between the individual characters.
      */
     $letterSpacing?: number;
