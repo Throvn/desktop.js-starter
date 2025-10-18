@@ -8,11 +8,11 @@
     "noImplicitOverride": true,
     "strict": true,
     "useUnknownInCatchVariables": true,
-    "lib": ["ESNext"],
+    "lib": ["ES2023"],
     "types": [
       "./.internals/types.d.ts",
       "./.internals/GUI.d.mts",
-      "./.internals/txiki.d.ts",
+      "./.internals/txiki.d.ts"
     ]
   }
 }
