@@ -114,7 +114,7 @@ func startEngine(stopChan <-chan struct{}, projectLocation string) {
 
 	var binaryLocation string
 	if runtime.GOOS == "darwin" {
-		binaryLocation = filepath.Join(location, ".internals/djs-aarch64-macos")
+		binaryLocation = filepath.Join(location, ".internals/djs-arm64-darwin")
 	} else {
 		Fatalf("No engine for target: %s", runtime.GOOS)
 	}
