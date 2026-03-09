@@ -29,6 +29,7 @@ version                | Prints the current starter version
 help                   | Prints this help
 		`)
 	}
+	var platformParam = flag.StringP("platform", "p", runtime.GOOS, "sets the target platform of the operation")
 	flag.Parse()
 	var command = flag.Arg(0)
 	switch command {
@@ -42,7 +43,7 @@ help                   | Prints this help
 		fmt.Printf("djs %s\n", version)
 	case "bundle":
 		var bundleName = filepath.Clean((flag.Arg(1)))
-		Bundle(bundleName)
+		Bundle(bundleName, *platformParam)
 
 	case "help":
 		fallthrough
