@@ -51,7 +51,7 @@ func createAppBundleDarwin(name string) {
 	}
 	bundleLocation = filepath.Join(bundleLocation, "Contents")
 
-	var enginePath = setupEngine(filepath.Join(bundleLocation, "MacOS"))
+	var enginePath = setupEngine(filepath.Join(bundleLocation, "MacOS"), "darwin")
 	fmt.Println("setup engine", enginePath)
 	os.Rename(enginePath, filepath.Join(bundleLocation, "MacOS", name))
 

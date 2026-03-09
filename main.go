@@ -35,7 +35,7 @@ help                   | Prints this help
 	switch command {
 	case "init":
 		var location = filepath.Clean(flag.Arg(1))
-		InitProject(location)
+		InitProject(location, *platformParam)
 	case "watch":
 		var location = filepath.Clean(flag.Arg(1))
 		Watch(location)

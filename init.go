@@ -139,8 +139,24 @@ height = 300
 //go:embed templates/djs-arm64-darwin
 var macosEngine []byte
 
-func setupEngine(location string) string {
-	binPath := filepath.Join(location, "djs-arm64-darwin")
+//go:embed templates/djs-x86_64-linux
+var linuxEngine []byte
+
+func setupEngine(location string, platform string) string {
+	switch platform {
+	case "darwin":
+		return setupEngineArch(location, platform, "arm64")
+	case "linux":
+		return setupEngineArch(location, platform, "x86_64")
+	}
+
+	Fatalf("Unknown platform. Cannot set up an engine for "+platform)
+
+	return ""
+}
+
+func setupEngineArch(location string, platform string, architecture string) string {
+	binPath := filepath.Join(location, "djs-"+architecture+"-"+platform)
 	file, err := os.Create(binPath)
 	if err != nil {
 		teardownProject(location)
@@ -161,9 +177,10 @@ func setupEngine(location string) string {
 	}
 
 	return binPath
+
 }
 
-func InitProject(location string) {
+func InitProject(location string, platform string) {
 	absPath, absErr := filepath.Abs(location)
 	if absErr != nil {
 		Fatalf("Could not get absolute path of '%s'", location)
@@ -200,7 +217,7 @@ func InitProject(location string) {
 	setupGitignore(location)
 	setupIniFile(name, location)
 	setupFonts(location)
-	setupEngine(filepath.Join(location, ".internals"))
+	setupEngine(filepath.Join(location, ".internals"), platform)
 
 	Infof("Created '%s'", absPath)
 	os.Chdir(location)
