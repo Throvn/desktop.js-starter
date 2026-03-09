@@ -136,11 +136,11 @@ height = 300
 
 }
 
-//go:embed templates/djs-aarch64-macos
+//go:embed templates/djs-arm64-darwin
 var macosEngine []byte
 
 func setupEngine(location string) string {
-	binPath := filepath.Join(location, "djs-aarch64-macos")
+	binPath := filepath.Join(location, "djs-arm64-darwin")
 	file, err := os.Create(binPath)
 	if err != nil {
 		teardownProject(location)
