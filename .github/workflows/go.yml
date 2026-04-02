@@ -43,5 +43,6 @@ jobs:
           tag_name: ${{ env.VERSION }}
           name: ${{ env.VERSION }}
           overwrite_files: true
+          files: djs-*-*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
