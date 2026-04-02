@@ -137,10 +137,10 @@ height = 300
 }
 
 //go:embed templates/djs-arm64-darwin
-var macosEngine []byte
+var darwinArm64Engine []byte
 
 //go:embed templates/djs-x86_64-linux
-var linuxEngine []byte
+var linuxAmd64Engine []byte
 
 func setupEngine(location string, platform string) string {
 	switch platform {
@@ -150,7 +150,7 @@ func setupEngine(location string, platform string) string {
 		return setupEngineArch(location, platform, "x86_64")
 	}
 
-	Fatalf("Unknown platform. Cannot set up an engine for "+platform)
+	Fatalf("Unknown platform. Cannot set up an engine for %s\n", platform)
 
 	return ""
 }
@@ -164,13 +164,18 @@ func setupEngineArch(location string, platform string, architecture string) stri
 	}
 	defer file.Close()
 
-	_, err = io.Copy(file, bytes.NewReader(macosEngine))
+	switch platform {
+	case "darwin":
+		_, err = io.Copy(file, bytes.NewReader(darwinArm64Engine))
+	case "linux":
+		_, err = io.Copy(file, bytes.NewReader(linuxAmd64Engine))
+	}
 	if err != nil {
 		teardownProject(location)
 		Fatalf("Could not write engine binary to '%s': %v", binPath, err)
 	}
 
-	err = file.Chmod(0o777)
+	err = file.Chmod(0o755)
 	if err != nil {
 		teardownProject(location)
 		Fatalf("Could not make executable '%s': %v", binPath, err)

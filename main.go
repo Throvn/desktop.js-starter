@@ -24,12 +24,13 @@ func main() {
 		fmt.Fprintf(os.Stderr, `
 init <location>        | Creates a new project at the specified location
 watch <location>       | Starts live reload for the given project
-bundle <app_name>      | (MacOS only) Creates an appbundle
+bundle <app_name>      | Creates an appbundle (only macOS and linux)
 version                | Prints the current starter version
 help                   | Prints this help
 		`)
 	}
 	var platformParam = flag.StringP("platform", "p", runtime.GOOS, "sets the target platform of the operation")
+	var sysArch = flag.StringP("arch", "a", runtime.GOARCH, "sets the system architecture of the operation")
 	flag.Parse()
 	var command = flag.Arg(0)
 	switch command {
@@ -42,8 +43,8 @@ help                   | Prints this help
 	case "version":
 		fmt.Printf("djs %s\n", version)
 	case "bundle":
-		var bundleName = filepath.Clean((flag.Arg(1)))
-		Bundle(bundleName, *platformParam)
+		var bundleName = filepath.Clean(flag.Arg(1))
+		Bundle(bundleName, *platformParam, *sysArch)
 
 	case "help":
 		fallthrough
