@@ -119,7 +119,7 @@ func createAppImage(name string, arch string) {
 
 func BundleLinux(name string, arch string) {
 	arch = DenormalizeArch(arch)
-	deleteAppDir(name)
 	appDirName := createAppDir(name)
 	createAppImage(appDirName, arch)
+	deleteAppDir(name)
 }
