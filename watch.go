@@ -57,7 +57,7 @@ func build(location string) {
 func setupWatcher(location string) {
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
-		log.Fatal(err)
+		Fatalf("%v", err)
 	}
 	defer watcher.Close()
 
@@ -74,7 +74,8 @@ func setupWatcher(location string) {
 				}
 				if event.Has(fsnotify.Write) {
 					PrintDivider("")
-					log.Printf("[Watch] Change detected: %s", event.Name)
+					fmt.Println()
+					Infof("Change detected: %s", event.Name)
 
 					// rebuild js
 					build(location)
@@ -91,7 +92,7 @@ func setupWatcher(location string) {
 				if !ok {
 					return
 				}
-				log.Println("error:", err)
+				Fatalf("error: %v", err)
 			}
 		}
 	}()
@@ -99,7 +100,7 @@ func setupWatcher(location string) {
 	// Add source directory to watcher
 	err = watcher.Add(filepath.Join(location, "source"))
 	if err != nil {
-		log.Fatal(err)
+		Fatalf("%v", err)
 	}
 
 	// Block main goroutine forever
