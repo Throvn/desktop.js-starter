@@ -5,14 +5,14 @@ name: Go Release
 
 on:
   push:
-    branches: ["main"]
+    branch: [main]
 
 permissions:
   contents: write
 
 jobs:
   release:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
@@ -25,16 +25,23 @@ jobs:
         id: get_version
         run: echo "VERSION=$(cat version)" >> $GITHUB_ENV
 
-      - name: Build macOS (Apple Silicon)
-        run: GOARCH=arm64 go build
+      - name: Build linux x86_64
+        run: GOARCH=amd64 GOOS=linux go build -o djs-linux-amd64
+
+      - name: Build linux aarch64
+        run: GOARCH=arm64 GOOS=linux go build -o djs-linux-arm64
+
+      - name: Build macOS aarch64
+        run: GOARCH=arm64 GOOS=darwin go build -o djs-darwin-arm64
+
+      - name: Build macOS x86_64
+        run: GOARCH=amd64 GOOS=darwin go build -o djs-darwin-amd64
 
       - name: Create/Update "latest" Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ env.VERSION }}
           name: ${{ env.VERSION }}
-          files: djs
-          draft: false
-          prerelease: true
+          overwrite_files: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

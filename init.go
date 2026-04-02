@@ -136,11 +136,27 @@ height = 300
 
 }
 
-//go:embed templates/djs-aarch64-macos
-var macosEngine []byte
+//go:embed templates/djs-arm64-darwin
+var darwinArm64Engine []byte
 
-func setupEngine(location string) string {
-	binPath := filepath.Join(location, "djs-aarch64-macos")
+//go:embed templates/djs-x86_64-linux
+var linuxAmd64Engine []byte
+
+func setupEngine(location string, platform string) string {
+	switch platform {
+	case "darwin":
+		return setupEngineArch(location, platform, "arm64")
+	case "linux":
+		return setupEngineArch(location, platform, "x86_64")
+	}
+
+	Fatalf("Unknown platform. Cannot set up an engine for %s\n", platform)
+
+	return ""
+}
+
+func setupEngineArch(location string, platform string, architecture string) string {
+	binPath := filepath.Join(location, "djs-"+architecture+"-"+platform)
 	file, err := os.Create(binPath)
 	if err != nil {
 		teardownProject(location)
@@ -148,22 +164,28 @@ func setupEngine(location string) string {
 	}
 	defer file.Close()
 
-	_, err = io.Copy(file, bytes.NewReader(macosEngine))
+	switch platform {
+	case "darwin":
+		_, err = io.Copy(file, bytes.NewReader(darwinArm64Engine))
+	case "linux":
+		_, err = io.Copy(file, bytes.NewReader(linuxAmd64Engine))
+	}
 	if err != nil {
 		teardownProject(location)
 		Fatalf("Could not write engine binary to '%s': %v", binPath, err)
 	}
 
-	err = file.Chmod(0o777)
+	err = file.Chmod(0o755)
 	if err != nil {
 		teardownProject(location)
 		Fatalf("Could not make executable '%s': %v", binPath, err)
 	}
 
 	return binPath
+
 }
 
-func InitProject(location string) {
+func InitProject(location string, platform string) {
 	absPath, absErr := filepath.Abs(location)
 	if absErr != nil {
 		Fatalf("Could not get absolute path of '%s'", location)
@@ -200,7 +222,7 @@ func InitProject(location string) {
 	setupGitignore(location)
 	setupIniFile(name, location)
 	setupFonts(location)
-	setupEngine(filepath.Join(location, ".internals"))
+	setupEngine(filepath.Join(location, ".internals"), platform)
 
 	Infof("Created '%s'", absPath)
 	os.Chdir(location)

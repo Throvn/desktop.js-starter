@@ -19,17 +19,15 @@ func getTerminalWidth() int {
 }
 
 func PrintDivider(title string) {
-	fmt.Println(title + strings.Repeat("-", getTerminalWidth()-len(title)) + "\n")
+	fmt.Print(title + strings.Repeat("-", getTerminalWidth()-len(title)) + "\n")
 }
 
 func Fatal(str string) {
-	redBg := chalk.New(chalk.BgRed).Add(chalk.FgWhite)
 	redFg := chalk.New(chalk.FgRed)
-	bold := chalk.New(chalk.Bold)
 
-	errPrefix := chalk.New(chalk.Reset).Sprint() + redFg.Sprint("✘ ") + redBg.Sprint("[ERROR]") + " " + bold.Sprint(str)
+	errPrefix := chalk.New(chalk.Reset).Sprint() + redFg.Sprint("✘ ") + str
 	errLog := log.New(os.Stdout, errPrefix, 0)
-	errLog.Fatalln()
+	errLog.Fatal()
 }
 
 func Fatalf(format string, args ...interface{}) {
@@ -37,13 +35,11 @@ func Fatalf(format string, args ...interface{}) {
 }
 
 func Info(str string) {
-	bluBg := chalk.New(chalk.BgBlue).Add(chalk.FgWhite)
 	bluFg := chalk.New(chalk.FgBlue)
-	bold := chalk.New(chalk.Bold)
 
-	errPrefix := chalk.New(chalk.Reset).Sprint() + bluFg.Sprint("▶ ") + bluBg.Sprint("[INFO]") + " " + bold.Sprint(str)
+	errPrefix := chalk.New(chalk.Reset).Sprint() + bluFg.Sprint("▶ ") + str
 	errLog := log.New(os.Stdout, errPrefix, 0)
-	errLog.Println()
+	errLog.Print()
 }
 
 func Infof(str string, args ...interface{}) {
@@ -51,13 +47,11 @@ func Infof(str string, args ...interface{}) {
 }
 
 func Warn(str string) {
-	ylwBg := chalk.New(chalk.BgYellow).Add(chalk.FgWhite)
 	ylwFg := chalk.New(chalk.FgYellow)
-	bold := chalk.New(chalk.Bold)
 
-	errPrefix := chalk.New(chalk.Reset).Sprint() + ylwFg.Sprint("▲ ") + ylwBg.Sprint("[WARNING]") + " " + bold.Sprint(str)
+	errPrefix := chalk.New(chalk.Reset).Sprint() + ylwFg.Sprint("▲ ") + str
 	errLog := log.New(os.Stdout, errPrefix, 0)
-	errLog.Println()
+	errLog.Print()
 }
 
 func Warnf(str string, args ...interface{}) {
